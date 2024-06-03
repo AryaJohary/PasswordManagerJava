@@ -123,11 +123,6 @@ public class FrontPage extends JFrame{
     void populateTable() {
         dataList = sq.getData();
         cName = new String[]{"Site Name", "Password", "Buttons"};
-        updateTable();
-    }
-
-    private void updateTable() {
-
         if(dataList.isEmpty()){
             tbModel = new DefaultTableModel(cName, 0);
             dataTable.setModel(tbModel);
@@ -179,13 +174,14 @@ public class FrontPage extends JFrame{
                 String siteName = dataTable.getModel().getValueAt(row,0).toString();
                 String password = dataTable.getModel().getValueAt(row,1).toString();
                 sq.deleteSitePassData(siteName,password);
+
                 ((DefaultTableModel) dataTable.getModel()).removeRow(row);
                 dataList = sq.getData();
                 if(dataList.isEmpty()){
                     tbModel = new DefaultTableModel(cName, 0);
                     dataTable.setModel(tbModel);
                 }else{
-                    updateTable();
+                    System.out.println("Inside else of Delete button of row "+row);
                 }
             }
             @Override
