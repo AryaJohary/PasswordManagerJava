@@ -107,16 +107,16 @@ public class FrontPage extends JFrame{
         }
     }
 
-    void clearTable(){
+    void clearTable() {
 
-        for(int i=1; i<dataList.size(); i++){
-            sq.deleteSitePassData(dataList.get(i).get(0),dataList.get(i).get(1));
-        }
+//        for(int i=1; i<dataList.size(); i++){
+//            sq.deleteSitePassData(dataList.get(i).get(0),dataList.get(i).get(1));
+//        }
+        sq.deleteTable();
         if(tbModel != null){
             tbModel.setRowCount(0);
             dataTable.setModel(tbModel);
         }
-
     }
 
 

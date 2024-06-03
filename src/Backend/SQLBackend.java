@@ -108,10 +108,19 @@ public class SQLBackend {
     }
     public Connection getConnection() throws ClassNotFoundException, SQLException {
         Connection conn;
-        String dbUrl = "jdbc:mysql://localhost:3306/";
-        String dbDriver = "com.mysql.cj.jdbc.Driver";
+        String dbUrl = "jdbc:mariadb://localhost:3306/";
+        String dbDriver = "org.mariadb.jdbc.Driver";
         Class.forName(dbDriver);
         conn = DriverManager.getConnection(dbUrl + dbName, dbUser, dbPass);
         return conn;
+    }
+    public void deleteTable(){
+        try{
+            PreparedStatement ps = conn.prepareStatement("TRUNCATE TABLE "+tableName);
+            ps.executeUpdate();
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
     }
 }
