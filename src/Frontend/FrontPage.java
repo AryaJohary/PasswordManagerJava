@@ -6,6 +6,7 @@ import javax.swing.table.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 import java.util.stream.Collectors;
@@ -88,11 +89,14 @@ public class FrontPage extends JFrame{
                 .collect(Collectors.joining());
 //        System.out.println(passwordString);
         String passwordConfirmString = passwordConfirm.getText();
-        if(passwordString.length()<8){
+        if(siteNameText.isEmpty()){
+            JOptionPane.showMessageDialog(null,"Please enter a Site Name");
+        }else if(userNameText.isEmpty()){
+            JOptionPane.showMessageDialog(null,"Please enter a User Name");
+        }else if(passwordString.length()<8){
             JOptionPane.showMessageDialog(null,"Password length must be at least 8 characters");
             return;
-        }
-        if(passwordString.equals(passwordConfirmString)){
+        }else if(passwordString.equals(passwordConfirmString)){
 //            JOptionPane.showMessageDialog(null,"Username = "+siteName+"\nPassword = "+passwordString);
             if(controller.addSitePassData(siteNameText, userNameText, passwordString)){
                 JOptionPane.showMessageDialog(null,"Successfully added site password");
@@ -100,12 +104,11 @@ public class FrontPage extends JFrame{
                 username.setText("");
                 password.setText("");
                 passwordConfirm.setText("");
-//                tbModel.addRow(new String[]{siteName,passwordString.replaceAll(".","*")});
-                populateTable();
+                tbModel.addRow(new String[]{siteNameText,userNameText,passwordString.replaceAll(".","*")});
+//                populateTable();
             }else {
                 JOptionPane.showMessageDialog(null,"Error while adding site password");
             }
-
         }else{
             JOptionPane.showMessageDialog(null,"Password not matching");
         }
@@ -134,7 +137,7 @@ public class FrontPage extends JFrame{
             }
         };
         dataTable.setModel(tbModel);
-        System.out.println("New model set");
+//        System.out.println("New model set");
         if (fillTableValues()){
             return;
         }
@@ -179,7 +182,7 @@ public class FrontPage extends JFrame{
             boolean viewing = false;
             @Override
             public void onEdit(int row) {
-                System.out.println("Edit row: " + row);
+//                System.out.println("Edit row: " + row);
                 String newPassword = JOptionPane.showInputDialog("Enter new password");
                 if(newPassword == null || newPassword.length()<8){
                     JOptionPane.showMessageDialog(null,"Password Length must be more than 8");
@@ -203,7 +206,7 @@ public class FrontPage extends JFrame{
 
             @Override
             public void onDelete(int row) {
-                System.out.println("Delete row: " + row);
+//                System.out.println("Delete row: " + row);
                 if(dataTable.isEditing()){
                     dataTable.getCellEditor().stopCellEditing();
                 }
@@ -218,7 +221,7 @@ public class FrontPage extends JFrame{
             }
             @Override
             public void onView(int row) {
-                System.out.println("View row: " + row);
+//                System.out.println("View row: " + row);
                 String password;
                 if(!viewing){
                     password = dataList.get(row).toArray(new String[0])[cName.length-2];

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class SQLBackend {
     Connection conn;
     String tableName = "SitePassData";
-    String dbName = "db_arya";
+    String dbName = "PasswordManagerDB";
     String dbUser = "root";
     String dbPass = "";
     ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
@@ -38,7 +38,11 @@ public class SQLBackend {
     public SQLBackend(){
         try{
             conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS "+tableName+" (SITE VARCHAR(8000), USERNAME VARCHAR(8000), PASSWORD VARCHAR(8000))");
+            PreparedStatement ps = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS "+dbName);
+//            ps.setString(1,dbName);
+            ps.executeUpdate();
+            conn = getDBConnection(dbName);
+            ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS "+tableName+" (SITE VARCHAR(100), USERNAME VARCHAR(100), PASSWORD VARCHAR(100))");
 //        ps.setString(1,tableName);
             ps.executeUpdate();
             spitOutAllTableRows();
@@ -57,10 +61,10 @@ public class SQLBackend {
             PreparedStatement selectStmt = conn.prepareStatement("SELECT * from "+tableName, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 //            selectStmt.setString(1,tableName);
             ResultSet rs = selectStmt.executeQuery();
-            if (!rs.isBeforeFirst()) {
-              System.out.println("no rows found");
-            }
-            else {
+//            if (!rs.isBeforeFirst()) {
+////              System.out.println("no rows found");
+//            }
+            if(rs.isBeforeFirst()) {
 //              System.out.println("types:");
 //                temp = new ArrayList<>();
 //                for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
@@ -114,7 +118,15 @@ public class SQLBackend {
         String dbUrl = "jdbc:mariadb://localhost:3306/";
         String dbDriver = "org.mariadb.jdbc.Driver";
         Class.forName(dbDriver);
-        conn = DriverManager.getConnection(dbUrl + dbName, dbUser, dbPass);
+        conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        return conn;
+    }
+    public Connection getDBConnection(String dbName) throws ClassNotFoundException, SQLException {
+        Connection conn;
+        String dbUrl = "jdbc:mariadb://localhost:3306/";
+        String dbDriver = "org.mariadb.jdbc.Driver";
+        Class.forName(dbDriver);
+        conn = DriverManager.getConnection(dbUrl+dbName, dbUser, dbPass);
         return conn;
     }
     public void deleteTable(){
