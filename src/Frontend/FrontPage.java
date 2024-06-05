@@ -45,8 +45,9 @@ public class FrontPage extends JFrame{
 //        String passwordString = "";
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-        setTitle("Front Page");
+        setTitle("Password Manager Made with ❤️ by Arya Johary");
         setSize(950,600);
+        setLocationRelativeTo(null);
         setContentPane(panelMain);
         dataTable.setRowHeight(35);
         setResizable(false);
@@ -228,6 +229,7 @@ public class FrontPage extends JFrame{
                     viewing = true;
                 }else{
                     password = dataList.get(row).toArray(new String[0])[cName.length-2].replaceAll(".","*");
+                    String temp = password;
                     viewing = false;
                 }
                 tbModel.setValueAt(password,row,cName.length-2);
