@@ -38,7 +38,7 @@ public class SQLBackend {
     public SQLBackend(){
         try{
             conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS "+tableName+" (SITE VARCHAR(8000),PASSWORD VARCHAR(8000))");
+            PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS "+tableName+" (SITE VARCHAR(8000), USERNAME VARCHAR(8000), PASSWORD VARCHAR(8000))");
 //        ps.setString(1,tableName);
             ps.executeUpdate();
             spitOutAllTableRows();
@@ -84,25 +84,26 @@ public class SQLBackend {
         }
     }
 
-    public boolean addSitePassData(String siteName, String password){
+    public boolean addSitePassData(String siteName, String userName, String password){
         int ret = 0;
         try{
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO "+tableName+" VALUES (?,?)");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO "+tableName+" VALUES (?,?,?)");
 //            ps.setString(1,tableName);
             ps.setString(1,siteName);
-            ps.setString(2,password);
+            ps.setString(2,userName);
+            ps.setString(3,password);
             ret = ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return ret > 0;
     }
-    public void deleteSitePassData(String siteName, String password){
+    public void deleteSitePassData(String siteName, String userName){
         try{
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM "+tableName+" WHERE SITE = ? AND PASSWORD = ?");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM "+tableName+" WHERE SITE = ? AND USERNAME = ?");
 //            ps.setString(1,tableName);
             ps.setString(1,siteName);
-            ps.setString(2,password);
+            ps.setString(2,userName);
             System.out.println("Output for deleteSitePassData was "+ps.executeUpdate());
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -125,13 +126,13 @@ public class SQLBackend {
             throw new RuntimeException(e);
         }
     }
-    public void editSitePassData(String siteName, String newPass, String oldPass) {
+    public void editSitePassData(String siteName, String userName, String newPass) {
         try{
-            PreparedStatement ps = conn.prepareStatement("UPDATE "+tableName+" SET PASSWORD = ? WHERE SITE = ? AND PASSWORD = ?");
+            PreparedStatement ps = conn.prepareStatement("UPDATE "+tableName+" SET PASSWORD = ? WHERE SITE = ? AND USERNAME = ?");
 //            ps.setString(1,tableName);
             ps.setString(1,newPass);
             ps.setString(2,siteName);
-            ps.setString(3,oldPass);
+            ps.setString(3,userName);
             System.out.println(ps);
             System.out.println("editSitePassData returned "+ps.executeUpdate());
         }catch(SQLException e){

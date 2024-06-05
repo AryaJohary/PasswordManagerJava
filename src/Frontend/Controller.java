@@ -7,10 +7,10 @@ import java.util.ArrayList;
 
 public class Controller {
     SQLBackend sq = new SQLBackend();
-    public boolean addSitePassData(String siteName, String passwordString) {
+    public boolean addSitePassData(String siteName, String userName, String passwordString) {
         // first convert the password to encrypted key and then store the password
         String encryptedPassword = Encryptor.encrypt(passwordString);
-        return sq.addSitePassData(siteName,encryptedPassword);
+        return sq.addSitePassData(siteName,userName,encryptedPassword);
     }
 
     public void deleteTable() {
@@ -27,15 +27,18 @@ public class Controller {
 //        data.removeFirst();
         ArrayList<String> tempRowStorage = new ArrayList<>();
         String tempSiteStorage = "";
+        String tempUserNameStorage = "";
         String tempPasswordStorage = "";
         for(int i=0; i<data.size(); i++) {
             if(!tempRowStorage.isEmpty()){
                 tempRowStorage.clear();
             }
             tempSiteStorage = data.get(i).get(0);
-            tempPasswordStorage = data.get(i).get(1);
+            tempUserNameStorage = data.get(i).get(1);
+            tempPasswordStorage = data.get(i).get(2);
 //            System.out.println("temp password Storage length = "+tempPasswordStorage.length());
             tempRowStorage.add(tempSiteStorage);
+            tempRowStorage.add(tempUserNameStorage);
             // decrypt them before passing it to front page
             tempRowStorage.add(Encryptor.decrypt(tempPasswordStorage));
             data.set(i,new ArrayList<>(tempRowStorage));
@@ -43,18 +46,18 @@ public class Controller {
         return data;
     }
 
-    public void editSitePassData(String siteName, String newPassword, String oldPassword) {
+    public void editSitePassData(String siteName, String userName, String newPassword) {
         // first encrypt the existing old password
-        String encryptedPassword = Encryptor.encrypt(oldPassword);
+//        String encryptedPassword = Encryptor.encrypt(oldPassword);
         // then encrypt the new password
         String encryptedNewPassword = Encryptor.encrypt(newPassword);
         // then pass on the data
-        sq.editSitePassData(siteName,encryptedNewPassword,encryptedPassword);
+        sq.editSitePassData(siteName,userName,encryptedNewPassword);
     }
 
-    public void deleteSitePassData(String siteName, String password) {
+    public void deleteSitePassData(String siteName, String userName) {
         // first encrypt the password then pass the data
-        String encryptedPassword = Encryptor.encrypt(password);
-        sq.deleteSitePassData(siteName,encryptedPassword);
+//        String encryptedPassword = Encryptor.encrypt();
+        sq.deleteSitePassData(siteName,userName);
     }
 }

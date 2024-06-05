@@ -4,6 +4,7 @@ package Frontend;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -24,16 +25,17 @@ public class FrontPage extends JFrame{
     private JScrollPane scrollPane;
     private JButton deleteTableButton;
     private JButton generateButton;
+    private JTextField siteName;
 
 
-//    SQLBackend sq = new SQLBackend();
+    //    SQLBackend sq = new SQLBackend();
     Controller controller = new Controller();
     DefaultTableModel tbModel;
     ArrayList<ArrayList<String>> dataList;
     String[][] data;
     Random random;
-    String[] cName = new String[]{"Site Name", "Password", "Buttons"};
-
+    String[] cName = new String[]{"Site Name", "Username", "Password", "Buttons"};
+    ArrayList<String> temp = new ArrayList<>();
 
     public FrontPage() {
 
@@ -43,10 +45,11 @@ public class FrontPage extends JFrame{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         setTitle("Front Page");
-        setSize(750,400);
+        setSize(950,600);
         setContentPane(panelMain);
         dataTable.setRowHeight(35);
         setResizable(false);
+        head.setFont(new Font("Serif", Font.BOLD,40));
         populateTable();
 
         saveButton.addActionListener(e -> saveData());
@@ -77,7 +80,8 @@ public class FrontPage extends JFrame{
     }
 
     void saveData(){
-        String siteName = username.getText();
+        String siteNameText = siteName.getText();
+        String userNameText = username.getText();
         String passwordString
                 = Stream.of(password.getPassword())
                 .map(String::new)
@@ -90,8 +94,9 @@ public class FrontPage extends JFrame{
         }
         if(passwordString.equals(passwordConfirmString)){
 //            JOptionPane.showMessageDialog(null,"Username = "+siteName+"\nPassword = "+passwordString);
-            if(controller.addSitePassData(siteName,passwordString)){
+            if(controller.addSitePassData(siteNameText, userNameText, passwordString)){
                 JOptionPane.showMessageDialog(null,"Successfully added site password");
+                siteName.setText("");
                 username.setText("");
                 password.setText("");
                 passwordConfirm.setText("");
@@ -125,7 +130,7 @@ public class FrontPage extends JFrame{
         tbModel = new DefaultTableModel(cName, 0){
             @Override
             public boolean isCellEditable(int row, int column){
-                return column == 2;
+                return column == cName.length-1;
             }
         };
         dataTable.setModel(tbModel);
@@ -137,9 +142,9 @@ public class FrontPage extends JFrame{
 //        tbModel.setDataVector(dataList,dataList.getFirst());
         TableActionCellEditor te = getTableActionCellEditor();
         TableActionCellRender tr = new TableActionCellRender();
-        dataTable.getColumnModel().getColumn(2).setCellRenderer(tr);
+        dataTable.getColumnModel().getColumn(cName.length-1).setCellRenderer(tr);
 //        System.out.println("TableActionCellRenderer called");
-        dataTable.getColumnModel().getColumn(2).setCellEditor(te);
+        dataTable.getColumnModel().getColumn(cName.length-1).setCellEditor(te);
 //        dataTable.setModel(tbModel);
     }
 
@@ -162,8 +167,9 @@ public class FrontPage extends JFrame{
 //        String[] cName = {"Delete Button","Website","Password"};
         for(int i=0; i<dataList.size();i++){
             data[i][0] = dataList.get(i).toArray(new String[0])[0];
-            data[i][1] = dataList.get(i).toArray(new String[0])[1].replaceAll(".","*");
-            data[i][2] = "";
+            data[i][1] = dataList.get(i).toArray(new String[0])[1];
+            data[i][2] = dataList.get(i).toArray(new String[0])[2].replaceAll(".","*");
+            data[i][3] = "";
         }
         return false;
     }
@@ -180,10 +186,17 @@ public class FrontPage extends JFrame{
                 }else {
                     controller.editSitePassData(
                             dataList.get(row).get(0),
-                            newPassword,
-                            dataList.get(row).get(1));
+                            dataList.get(row).get(1),
+                            newPassword);
 //                    populateTable();
-                    tbModel.setValueAt(newPassword.replaceAll(".","*"),row,1);
+                    if(!temp.isEmpty()){
+                        temp.clear();
+                    }
+                    temp.add(dataList.get(row).get(0));
+                    temp.add(dataList.get(row).get(1));
+                    temp.add(newPassword);
+                    dataList.set(row,temp);
+                    tbModel.setValueAt(newPassword.replaceAll(".","*"),row,cName.length-2);
                     JOptionPane.showMessageDialog(null,"Successfully edited site password");
                 }
             }
@@ -195,41 +208,26 @@ public class FrontPage extends JFrame{
                     dataTable.getCellEditor().stopCellEditing();
                 }
                 String siteName = dataTable.getModel().getValueAt(row,0).toString();
-                String password = dataTable.getModel().getValueAt(row,1).toString();
+                String userName = dataTable.getModel().getValueAt(row,1).toString();
 //                System.out.println("Inside delete passed sitename = "+siteName+" and password = "+password);
-                controller.deleteSitePassData(siteName,password);
+                controller.deleteSitePassData(siteName,userName);
 
 //                ((DefaultTableModel) dataTable.getModel()).removeRow(row);
-                dataList = controller.getData();
-                if(dataList.isEmpty()){
-//                    tbModel = new DefaultTableModel(cName, 0);
-//                    dataTable.setModel(tbModel);
-                    tbModel.setRowCount(0);
-                }else{
-                    System.out.println("Inside else of Delete button of row "+row);
-                    // remove (row+1)th row from the data array
-//                    String[][] temp = new String[data.length-1][];
-//                    for(int i=0,j=0;i<data.length;i++){
-//                        if(i!=row){
-//                            temp[j++] = data[i];
-//                        }
-//                    }
-//                    data = temp;
-                    populateTable();
-                }
+                dataList.remove(row);
+                tbModel.removeRow(row);
             }
             @Override
             public void onView(int row) {
                 System.out.println("View row: " + row);
                 String password;
                 if(!viewing){
-                    password = dataList.get(row).toArray(new String[0])[1];
+                    password = dataList.get(row).toArray(new String[0])[cName.length-2];
                     viewing = true;
                 }else{
-                    password = dataList.get(row).toArray(new String[0])[1].replaceAll(".","*");
+                    password = dataList.get(row).toArray(new String[0])[cName.length-2].replaceAll(".","*");
                     viewing = false;
                 }
-                tbModel.setValueAt(password,row,1);
+                tbModel.setValueAt(password,row,cName.length-2);
             }
         };
 
